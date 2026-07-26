@@ -5,14 +5,15 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, m
 import pymysql
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'mi_clave_secreta_streamflix'
+# Clave secreta leída de variable de entorno
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'mi_clave_secreta_streamflix')
 
-
+# Configuración de tu conexión MySQL leyendo de Variables de Entorno
 DB_CONFIG = {
-    'host': '192.241.141.69',       # IP pública de tu Droplet
-    'user': 'admindb',              # 👈 ¡AQUÍ! Cambia 'root' por 'admindb'
-    'password': 'ClaveSegura2026!',     # La contraseña exacta que creaste
-    'database': 'streamingflix',
+    'host': os.environ.get('DB_HOST', '192.241.141.69'),
+    'user': os.environ.get('DB_USER', 'admindb'),
+    'password': os.environ.get('DB_PASSWORD', 'ClaveSegura2026!'),
+    'database': os.environ.get('DB_NAME', 'streamingflix'),
     'cursorclass': pymysql.cursors.DictCursor
 }
 
