@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #141414; color: #fff; }
+        .navbar { background-color: #000; }
+        .card-custom { background-color: #222; border: 1px solid #333; }
+        .nav-tabs { border-bottom: 1px solid #333; }
+        .nav-tabs .nav-link { color: #aaa; background-color: #1a1a1a; border-color: #333; }
+        .nav-tabs .nav-link.active { color: #fff; background-color: #2b2b2b; border-color: #444 #444 #2b2b2b; }
+        .table { color: #fff; vertical-align: middle; }
+        .form-control, .form-select { background-color: #2b2b2b; color: #fff; border: 1px solid #444; }
+        .form-control:focus, .form-select:focus { background-color: #333; color: #fff; }
+        .modal-content { background-color: #222; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-dark px-4 d-flex justify-content-between align-items-center">
+        <a class="navbar-brand text-danger fw-bold fs-3" href="#">StreamFlix Admin</a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success py-2 px-3">Token Activo</span>
+            <button class="btn btn-outline-warning btn-sm" onclick="renovarToken()">🔄 Renovar Token Abierto</button>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <h2 class="mb-4">Panel de Administración</h2>
+
+        <!-- PARAMETRIZACIÓN DEL TOKEN -->
+        <div class="card card-custom p-3 mb-4">
+            <h5 class="mb-3">⚙️ Parametrización del Token</h5>
+            <div class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <label class="col-form-label">Tiempo de vida (minutos):</label>
+                </div>
+                <div class="col-auto">
+                    <input type="number" id="tiempo_token" class="form-control" value="15" style="width: 100px;">
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" onclick="guardarTiempoToken()">Guardar Tiempo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑAS -->
+        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-usuarios" data-bs-toggle="tab" data-bs-target="#panel-usuarios" type="button" role="tab">Catálogo 1: Usuarios</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-contenidos" data-bs-toggle="tab" data-bs-target="#panel-contenidos" type="button" role="tab">Catálogo 2: Contenidos</button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3" id="adminTabsContent">
+            
+            <!-- PANEL USUARIOS -->
+            <div class="tab-pane fade show active" id="panel-usuarios" role="tabpanel">
+                <div class="card card-custom p-3 mb-3">
+                    <h6>Agregar Nuevo Usuario</h6>
+                    <form id="formUsuario" class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" id="u_nombre" class="form-control" placeholder="Nombre" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="email" id="u_email" class="form-control" placeholder="Email" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="password" id="u_password" class="form-control" placeholder="Contraseña" required>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-success w-100">+ Alta Usuario</button>
+                        </div>
+                    </form>
+                </div>
+
+                <table class="table table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-usuarios"></tbody>
+                </table>
+            </div>
+
+            <!-- PANEL CONTENIDOS -->
+            <div class="tab-pane fade" id="panel-contenidos" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0">Catálogo de Contenidos</h5>
+                    <button class="btn btn-success" onclick="abrirModalContenido()">+ Alta Contenido</button>
+                </div>
+
+                <table class="table table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Año</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-contenidos"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR / CREAR CONTENIDO -->
+    <div class="modal fade" id="modalContenido" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalContenido">Guardar Contenido</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formContenido">
+                        <input type="hidden" id="c_id">
+                        <div class="mb-3">
+                            <label class="form-label">Título</label>
+                            <input type="text" id="c_titulo" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Categoría</label>
+                            <select id="c_categoria" class="form-select">
+                                <option value="Película">Película</option>
+                                <option value="Serie">Serie</option>
+                                <option value="Música / Podcasts">Música / Podcasts</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Año</label>
+                            <input type="number" id="c_anio" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URL Imagen Poster</label>
+                            <input type="text" id="c_imagen" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URL Video</label>
+                            <input type="text" id="c_video" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarUsuarios();
+            cargarContenidos();
+
+            // Garantiza que el cambio de pestañas funcione manualmente si falla el data-attribute
+            document.querySelectorAll('#adminTabs button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tab = new bootstrap.Tab(button);
+                    tab.show();
+                });
+            });
+        });
+
+        // --- USUARIOS ---
+        function cargarUsuarios() {
+            fetch('/api/usuarios')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('tabla-usuarios');
+                    tbody.innerHTML = '';
+                    data.forEach(u => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${u.id}</td>
+                                <td>${u.nombre || ''}</td>
+                                <td>${u.email || ''}</td>
+                                <td>${u.rol || 'usuario'}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${u.id})">Baja</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        document.getElementById('formUsuario').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = {
+                nombre: document.getElementById('u_nombre').value,
+                email: document.getElementById('u_email').value,
+                password: document.getElementById('u_password').value,
+                rol: 'usuario'
+            };
+            fetch('/api/usuarios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(() => {
+                document.getElementById('formUsuario').reset();
+                cargarUsuarios();
+            });
+        });
+
+        function eliminarUsuario(id) {
+            if (confirm("¿Confirmar baja de usuario?")) {
+                fetch(`/api/usuarios/${id}`, { method: 'DELETE' }).then(() => cargarUsuarios());
+            }
+        }
+
+        // --- CONTENIDOS ---
+        function cargarContenidos() {
+            fetch('/api/contenidos')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('tabla-contenidos');
+                    tbody.innerHTML = '';
+                    data.forEach(c => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${c.id}</td>
+                                <td>${c.titulo}</td>
+                                <td>${c.categoria}</td>
+                                <td>${c.anio}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning me-1" onclick="editarContenido(${c.id})">Editar</button>
+                                    <button class="btn btn-sm btn-danger" onclick="eliminarContenido(${c.id})">Baja</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        function abrirModalContenido() {
+            document.getElementById('formContenido').reset();
+            document.getElementById('c_id').value = '';
+            document.getElementById('tituloModalContenido').innerText = "Alta Contenido";
+            const modal = new bootstrap.Modal(document.getElementById('modalContenido'));
+            modal.show();
+        }
+
+        function editarContenido(id) {
+            fetch(`/api/contenidos/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('c_id').value = data.id;
+                    document.getElementById('c_titulo').value = data.titulo;
+                    document.getElementById('c_categoria').value = data.categoria;
+                    document.getElementById('c_anio').value = data.anio;
+                    document.getElementById('c_imagen').value = data.imagen_url || '';
+                    document.getElementById('c_video').value = data.video_url || '';
+                    document.getElementById('tituloModalContenido').innerText = "Editar Contenido";
+                    const modal = new bootstrap.Modal(document.getElementById('modalContenido'));
+                    modal.show();
+                });
+        }
+
+        document.getElementById('formContenido').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('c_id').value;
+            const data = {
+                titulo: document.getElementById('c_titulo').value,
+                categoria: document.getElementById('c_categoria').value,
+                anio: document.getElementById('c_anio').value,
+                imagen_url: document.getElementById('c_imagen').value,
+                video_url: document.getElementById('c_video').value
+            };
+
+            const url = id ? `/api/contenidos/${id}` : '/api/contenidos';
+            const method = id ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalContenido'));
+                if (modal) modal.hide();
+                cargarContenidos();
+            });
+        });
+
+        function eliminarContenido(id) {
+            if (confirm("¿Confirmar eliminación de contenido?")) {
+                fetch(`/api/contenidos/${id}`, { method: 'DELETE' }).then(() => cargarContenidos());
+            }
+        }
+
+        // --- TOKEN UTILS ---
+        function renovarToken() {
+            fetch('/api/token/renovar', { method: 'POST' }).then(() => alert('Token renovado exitosamente.'));
+        }
+
+        function guardarTiempoToken() {
+            alert('Tiempo actualizado');
+        }
+    </script>
+</body>
+</html>

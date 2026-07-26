@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix - Plataforma de Streaming</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body { background-color: #141414; color: #fff; }
+        .navbar-brand { color: #E50914 !important; font-weight: bold; font-size: 1.8rem; }
+        .hero-banner {
+            background: linear-gradient(180deg, rgba(20,20,20,0.2) 0%, rgba(20,20,20,1) 100%), 
+                        url('https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200') center/cover no-repeat;
+            height: 65vh;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 3rem;
+        }
+        .card-stream {
+            background-color: #1f1f1f;
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .card-stream:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+        }
+        .btn-stream { background-color: #E50914; color: white; font-weight: 600; }
+        .btn-stream:hover { background-color: #b80710; color: white; }
+        a.card-link { text-decoration: none; color: inherit; }
+    </style>
+</head>
+<body>
+
+    <!-- Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black sticky-top px-4">
+        <a class="navbar-brand" href="/"><i class="fa-solid fa-circle-play me-2"></i>StreamFlix</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active fw-bold text-white{% endif %}" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/peliculas' %}active fw-bold text-white{% endif %}" href="/peliculas">Películas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/series' %}active fw-bold text-white{% endif %}" href="/series">Series</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/musica-podcasts' %}active fw-bold text-white{% endif %}" href="/musica-podcasts">Música / Podcasts</a>
+                    </li>
+                </ul>
+            <div class="d-flex align-items-center gap-3">
+                <a href="/login" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-user me-1"></i> Iniciar Sesión</a>
+                <a href="/dashboard" class="btn btn-stream btn-sm"><i class="fa-solid fa-gauge me-1"></i> Admin Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banner Principal (Si existe contenido muestra el primero, si no usa un default) -->
+    <div class="hero-banner px-5" 
+         style="background: linear-gradient(180deg, rgba(20,20,20,0.2) 0%, rgba(20,20,20,1) 100%), 
+                url('{{ contenidos[0].imagen_url if contenidos and contenidos[0].imagen_url else 'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200' }}') center/cover no-repeat;">
+        <div>
+            <span class="badge bg-danger mb-2">DESTACADO</span>
+            <h1 class="display-3 fw-bold">{{ contenidos[0].titulo if contenidos else 'Cyber Odyssey 2077' }}</h1>
+            <p class="lead text-light">
+                {{ contenidos[0].categoria if contenidos else 'Ciencia Ficción' }} 
+                {% if contenidos and contenidos[0].anio %} • {{ contenidos[0].anio }}{% endif %}
+            </p>
+            <div class="d-flex gap-2 mt-3">
+                {% if contenidos %}
+                    <a href="/reproducir/{{ contenidos[0].id }}" class="btn btn-stream btn-lg px-4"><i class="fa-solid fa-play me-2"></i>Reproducir</a>
+                {% else %}
+                    <button class="btn btn-stream btn-lg px-4"><i class="fa-solid fa-play me-2"></i>Reproducir</button>
+                {% endif %}
+                <button class="btn btn-secondary btn-lg px-4"><i class="fa-solid fa-circle-info me-2"></i>Más información</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Catálogo de Contenido -->
+    <div class="container-fluid px-5 my-4">
+        <h4 class="mb-3">
+            <i class="fa-solid fa-fire text-danger me-2"></i>
+            {{ titulo_seccion or 'Tendencias Generales' }}
+        </h4>        
+        <div class="row row-cols-1 row-cols-md-4 g-4 mb-5">
+            {% if contenidos %}
+                {% for item in contenidos %}
+                    <div class="col">
+                        <a href="/reproducir/{{ item.id }}" class="card-link">
+                            <div class="card card-stream h-100">
+                                <img src="{{ item.imagen_url or 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400' }}" 
+                                     class="card-img-top" 
+                                     alt="{{ item.titulo }}"
+                                     style="height: 250px; object-fit: cover;">
+                                <div class="card-body">
+                                    <span class="badge bg-danger">{{ item.categoria or 'General' }}</span>
+                                    <h5 class="card-title mt-2">{{ item.titulo }}</h5>
+                                    <p class="card-text text-muted small">
+                                        {{ item.categoria }} {% if item.anio %}• {{ item.anio }}{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-warning">No hay contenido registrado en la base de datos todavía.</div>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

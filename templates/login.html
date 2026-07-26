@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix - Iniciar Sesión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), 
+                        url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1200') center/cover no-repeat;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background-color: rgba(0, 0, 0, 0.85);
+            border: 1px solid #333;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+        .btn-stream { background-color: #E50914; color: white; font-weight: 600; }
+        .btn-stream:hover { background-color: #b80710; color: white; }
+        .brand-logo { color: #E50914; font-size: 2.2rem; font-weight: bold; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card text-center">
+        <a href="/" class="brand-logo mb-4 d-block"><i class="fa-solid fa-circle-play me-2"></i>StreamFlix</a>
+        <h3 class="fw-bold mb-4">Iniciar Sesión</h3>
+
+        <form action="/login" method="POST">
+            <div class="form-floating mb-3 text-start">
+                <input type="email" class="form-control bg-dark text-white border-secondary" id="email" name="email" placeholder="nombre@ejemplo.com" required>
+                <label for="email" class="text-muted">Correo electrónico</label>
+            </div>
+
+            <div class="form-floating mb-3 text-start">
+                <input type="password" class="form-control bg-dark text-white border-secondary" id="password" name="password" placeholder="Contraseña" required>
+                <label for="password" class="text-muted">Contraseña</label>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4 small">
+                <div class="form-check text-start">
+                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                    <label class="form-check-label text-muted" for="rememberMe">Recordarme</label>
+                </div>
+                <a href="#" class="text-danger text-decoration-none">¿Ayuda?</a>
+            </div>
+
+            <button type="submit" class="btn btn-stream w-100 py-2 mb-3 fs-5">Ingresar al Sistema</button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top border-secondary text-muted small">
+            ¿Primera vez en StreamFlix? <a href="#" class="text-white text-decoration-none fw-bold">Suscríbete ahora</a>.
+        </div>
+    </div>
+
+</body>
+</html>
