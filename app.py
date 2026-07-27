@@ -13,7 +13,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'mi_clave_secreta_stream
 DB_CONFIG = {
     'host': os.environ.get('DB_HOST', '192.241.141.69'),
     'user': os.environ.get('DB_USER', 'admindb'),
-    'password': os.environ.get('DB_PASSWORD', 'ClaveSegura2026!'),
+    'password': os.environ.get('DB_PASSWORD', 'contraseña'),
     'database': os.environ.get('DB_NAME', 'streamingflix'),
     'cursorclass': pymysql.cursors.DictCursor
 }
